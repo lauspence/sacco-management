@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sacco Management</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #007bff, #6610f2);
+            color: #333;
+        }
+        .navbar {
+            background-color: rgba(0, 123, 255, 0.9);
+        }
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+        .dashboard-container {
+            max-width: 1000px;
+            margin: 50px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #007bff;
+            text-align: center;
+        }
+        .card {
+            border-radius: 10px;
+            transition: 0.3s;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+        .card:hover {
+            transform: scale(1.02);
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .btn {
+            transition: 0.3s;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'home' %}">Sacco Management</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+                    {% if user.is_superuser %}
+                        <li class="nav-item"><a class="nav-link btn btn-warning text-dark" href="{% url 'loan_approval' %}">Loan Approvals</a></li>
+                    {% endif %}
+                    <li class="nav-item"><a class="nav-link btn btn-danger text-white" href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        <h2 class="text-center fw-bold">Welcome, {{ user.username }} 👋</h2>
+        <p class="text-center text-muted">Manage your loans and transactions below.</p>
+
+        <!-- Account Balance Section -->
+        <div class="card mb-4 text-center">
+            <h3 class="section-title">Your Account Balance</h3>
+            <p class="lead">💰 <strong>Wallet Balance:</strong> Ksh <span id="wallet-balance">{{ wallet_balance|floatformat:2 }}</span></p>
+            <p class="lead">🏦 <strong>Savings Balance:</strong> Ksh <span id="savings-balance">{{ savings_balance|floatformat:2 }}</span></p>
+            <p class="lead">📊 <strong>Total Account Balance:</strong> Ksh <span id="account-balance">{{ total_account_balance|floatformat:2 }}</span></p>
+        
+        </div>
+
+            <!-- ✅ Remaining Loan Balance Section -->
+    <div class="card mb-4 text-center">
+        <h3 class="section-title">Remaining Loan Balance</h3>
+        <p class="lead">
+            <strong>Total Loan Balance:</strong> Ksh <span id="loan-balance">{{ total_loan_balance|default:0|floatformat:2 }}</span>
+        </p>
+    </div>
+
+        
+
+    <!-- Loan Repayment Section -->
+    <div class="card mb-4">
+        <h3 class="section-title">Make a Loan Repayment</h3>
+        <form method="POST" action="{% url 'repay_loan' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label>Select Loan:</label>
+                <select name="loan" class="form-control">
+                    {% for loan in loans %}
+                        {% if loan.status == "approved" %}
+                            <option value="{{ loan.id }}">Remaining: Ksh {{ loan.amount }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label>Repay From:</label>
+                <select name="account" class="form-control">
+                    <option value="wallet">Wallet Balance (Ksh {{ member.balance }})</option>
+                    <option value="savings">Savings Account (Ksh {{ member.savings_balance }})</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label>Amount to Pay:</label>
+                <input type="number" name="amount_paid" class="form-control" required min="1">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Repay Loan</button>
+        </form>
+    </div>
+
+
+
+        <!-- Loan Application Section -->
+        <div class="card mb-4">
+            <h3 class="section-title">Apply for a Loan</h3>
+            <form method="POST" action="{% url 'apply_loan' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label>Loan Amount:</label>
+                    <input type="number" name="amount" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label>Interest Rate (%):</label>
+                    <input type="number" name="interest_rate" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label>Duration (Months):</label>
+                    <input type="number" name="duration_months" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Apply Loan</button>
+            </form>
+        </div>
+
+        <!-- Deposit & Withdraw Funds -->
+        <div class="card mb-4">
+            <h3 class="section-title">Deposit / Withdraw Funds</h3>
+            <form method="POST" action="{% url 'make_transaction' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label>Amount:</label>
+                    <input type="number" name="amount" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label>Transaction Type:</label>
+                    <select name="transaction_type" class="form-control" required>
+                        <option value="deposit">Deposit</option>
+                        <option value="withdrawal">Withdraw</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success w-100">Submit</button>
+            </form>
+        </div>
+
+                <!-- Transfer Funds Section -->
+        <div class="card mb-4 text-center">
+            <h3 class="section-title">Transfer Funds</h3>
+            <p>Move money between your Wallet and Savings Account.</p>
+            <a href="{% url 'transfer_funds' %}" class="btn btn-primary w-100">Transfer Funds</a>
+        </div>
+
+
+        <!-- Loan & Transaction Charts -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <h3 class="section-title">Loan Status Overview</h3>
+                    <canvas id="loanChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <h3 class="section-title">Transaction History (Last 7 Days)</h3>
+                    <canvas id="transactionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loan Repayment History Section -->
+<div class="card mb-4">
+    <h3 class="section-title">Loan Repayment History</h3>
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Loan ID</th>
+                <th>Amount Paid</th>
+                <th>Date Paid</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for repayment in loan_repayment_history %}
+            <tr>
+                <td>{{ repayment.loan.id }}</td>
+                <td>Ksh{{ repayment.amount_paid }}</td>
+                <td>{{ repayment.date_paid|date:"M d, Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-center">No repayments made yet</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+    <!-- Chart Scripts -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            new Chart(document.getElementById('loanChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'Approved', 'Rejected'],
+                    datasets: [{ data: [{{ pending_loans }}, {{ approved_loans }}, {{ rejected_loans }}], backgroundColor: ['yellow', 'green', 'red'] }]
+                }
+            });
+
+            new Chart(document.getElementById('transactionChart'), {
+                type: 'bar',
+                data: { labels: {{ transaction_dates|safe }}, datasets: [{ label: 'Deposits', data: {{ deposit_amounts|safe }}, backgroundColor: 'green' }, { label: 'Withdrawals', data: {{ withdrawal_amounts|safe }}, backgroundColor: 'red' }] }
+            });
+        });
+    </script>
+
+</body>
+</html>
