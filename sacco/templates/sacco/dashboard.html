@@ -100,25 +100,44 @@
         <p class="lead">
             <strong>Total Loan Balance:</strong> Ksh <span id="loan-balance">{{ total_loan_balance|default:0|floatformat:2 }}</span>
         </p>
+        
     </div>
 
+        <!-- Withdraw Loan Section -->
+        {% if loan.remaining_balance > 0 %}
+        <form method="POST" action="{% url 'withdraw_loan' loan.id %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="withdraw_amount">Withdrawal Amount</label>
+                <input type="number" name="amount" id="withdraw_amount" class="form-control" 
+                    placeholder="Enter amount" required min="1" max="{{ loan.remaining_balance }}">
+            </div>
+            <button type="submit" class="btn btn-warning w-100">Withdraw Loan</button>
+        </form>
+        {% else %}
+            <p class="text-danger">⚠ You have no remaining loan balance to withdraw.</p>
+        {% endif %}
         
-
-    <!-- Loan Repayment Section -->
-    <div class="card mb-4">
-        <h3 class="section-title">Make a Loan Repayment</h3>
+        
+        
+        
+        <!-- Loan Repayment Section -->
+        <h3 class="section-title mt-4">Make a Loan Repayment</h3>
         <form method="POST" action="{% url 'repay_loan' %}">
             {% csrf_token %}
             <div class="mb-3">
                 <label>Select Loan:</label>
                 <select name="loan" class="form-control">
                     {% for loan in loans %}
-                        {% if loan.status == "approved" %}
-                            <option value="{{ loan.id }}">Remaining: Ksh {{ loan.amount }}</option>
+                        {% if loan.status == "approved" and loan.remaining_balance > 0 %}
+                            <option value="{{ loan.id }}">
+                                Remaining: Ksh <span id="loan-{{ loan.id }}">{{ loan.remaining_balance }}</span>
+                            </option>
                         {% endif %}
                     {% endfor %}
                 </select>
             </div>
+            
             <div class="mb-3">
                 <label>Repay From:</label>
                 <select name="account" class="form-control">
@@ -128,125 +147,164 @@
             </div>
             <div class="mb-3">
                 <label>Amount to Pay:</label>
-                <input type="number" name="amount_paid" class="form-control" required min="1">
+                <input type="number" name="amount_paid" class="form-control" required min="1" 
+                       max="{{ loan.remaining_balance|default:0 }}">
             </div>
-            <button type="submit" class="btn btn-primary w-100">Repay Loan</button>
+            
+            {% if loan and loan.remaining_balance > 0 %}
+                <button type="submit" class="btn btn-primary w-100">Repay Loan</button>
+            {% else %}
+                <p class="text-danger">⚠ No outstanding balance to repay.</p>
+            {% endif %}
+                
         </form>
     </div>
-
-
-
+    <div class="container mt-4">
         <!-- Loan Application Section -->
         <div class="card mb-4">
-            <h3 class="section-title">Apply for a Loan</h3>
+            <h3 class="section-title text-center">Apply for a Loan</h3>
             <form method="POST" action="{% url 'apply_loan' %}">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <label>Loan Amount:</label>
-                    <input type="number" name="amount" class="form-control" required>
+                    <label for="loan_amount">Loan Amount:</label>
+                    <input type="number" id="loan_amount" name="amount" class="form-control" required placeholder="Enter loan amount">
                 </div>
                 <div class="mb-3">
-                    <label>Interest Rate (%):</label>
-                    <input type="number" name="interest_rate" class="form-control" required>
+                    <label for="interest_rate">Interest Rate (%):</label>
+                    <input type="number" id="interest_rate" name="interest_rate" class="form-control" required placeholder="Enter interest rate">
                 </div>
                 <div class="mb-3">
-                    <label>Duration (Months):</label>
-                    <input type="number" name="duration_months" class="form-control" required>
+                    <label for="duration_months">Duration (Months):</label>
+                    <input type="number" id="duration_months" name="duration_months" class="form-control" required placeholder="Enter duration in months">
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Apply Loan</button>
+                <button type="submit" class="btn btn-primary w-100">Apply for Loan</button>
             </form>
         </div>
-
-        <!-- Deposit & Withdraw Funds -->
+    
+        <!-- Deposit & Withdraw Funds Section -->
         <div class="card mb-4">
-            <h3 class="section-title">Deposit / Withdraw Funds</h3>
+            <h3 class="section-title text-center">Deposit / Withdraw Funds</h3>
             <form method="POST" action="{% url 'make_transaction' %}">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <label>Amount:</label>
-                    <input type="number" name="amount" class="form-control" required>
+                    <label for="amount">Amount:</label>
+                    <input type="number" id="amount" name="amount" class="form-control" required min="1" placeholder="Enter amount">
                 </div>
                 <div class="mb-3">
-                    <label>Transaction Type:</label>
-                    <select name="transaction_type" class="form-control" required>
+                    <label for="transaction_type">Transaction Type:</label>
+                    <select id="transaction_type" name="transaction_type" class="form-control" required>
                         <option value="deposit">Deposit</option>
                         <option value="withdrawal">Withdraw</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-success w-100">Submit</button>
+                <button type="submit" class="btn btn-success w-100">Submit Transaction</button>
             </form>
         </div>
-
-                <!-- Transfer Funds Section -->
+    
+        <!-- Transfer Funds Section -->
         <div class="card mb-4 text-center">
             <h3 class="section-title">Transfer Funds</h3>
             <p>Move money between your Wallet and Savings Account.</p>
             <a href="{% url 'transfer_funds' %}" class="btn btn-primary w-100">Transfer Funds</a>
         </div>
 
-
-        <!-- Loan & Transaction Charts -->
+        <div class="card mb-4">
+            <h3 class="section-title text-center">Manage Shares</h3>
+            <a href="{% url 'buy_shares' %}" class="btn btn-success mb-2 w-100">Buy Shares</a>
+            <a href="{% url 'transfer_shares' %}" class="btn btn-primary w-100">Transfer Shares</a>
+        </div>
+        
+    
+        <!-- Loan & Transaction Charts Section -->
         <div class="row">
             <div class="col-md-6">
                 <div class="card mb-4">
-                    <h3 class="section-title">Loan Status Overview</h3>
+                    <h3 class="section-title text-center">Loan Status Overview</h3>
                     <canvas id="loanChart"></canvas>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="card mb-4">
-                    <h3 class="section-title">Transaction History (Last 7 Days)</h3>
+                    <h3 class="section-title text-center">Transaction History (Last 7 Days)</h3>
                     <canvas id="transactionChart"></canvas>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Loan Repayment History Section -->
-<div class="card mb-4">
-    <h3 class="section-title">Loan Repayment History</h3>
-    <table class="table table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>Loan ID</th>
-                <th>Amount Paid</th>
-                <th>Date Paid</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for repayment in loan_repayment_history %}
-            <tr>
-                <td>{{ repayment.loan.id }}</td>
-                <td>Ksh{{ repayment.amount_paid }}</td>
-                <td>{{ repayment.date_paid|date:"M d, Y" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="3" class="text-center">No repayments made yet</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-
+        <div class="d-flex justify-content-center mb-3">
+            <a href="{% url 'transaction_history' %}" class="btn btn-primary btn-lg">
+                View Transaction History
+            </a>
+        </div>
+        
+        <!-- Loan Repayment History Section -->
+        <div class="card mb-4">
+            <h3 class="section-title text-center">Loan Repayment History</h3>
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Loan ID</th>
+                        <th>Amount Paid</th>
+                        <th>Date Paid</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for repayment in loan_repayment_history %}
+                    <tr>
+                        <td>{{ repayment.loan.id }}</td>
+                        <td>Ksh{{ repayment.amount_paid }}</td>
+                        <td>{{ repayment.date_paid|date:"M d, Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center">No repayments made yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    
+    </div> <!-- End Container -->
+    
     <!-- Chart Scripts -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            // Loan Status Overview Doughnut Chart
             new Chart(document.getElementById('loanChart'), {
                 type: 'doughnut',
                 data: {
                     labels: ['Pending', 'Approved', 'Rejected'],
-                    datasets: [{ data: [{{ pending_loans }}, {{ approved_loans }}, {{ rejected_loans }}], backgroundColor: ['yellow', 'green', 'red'] }]
+                    datasets: [{
+                        data: [{{ pending_loans }}, {{ approved_loans }}, {{ rejected_loans }}],
+                        backgroundColor: ['yellow', 'green', 'red']
+                    }]
                 }
             });
-
+    
+            // Transaction History Bar Chart (Last 7 Days)
             new Chart(document.getElementById('transactionChart'), {
                 type: 'bar',
-                data: { labels: {{ transaction_dates|safe }}, datasets: [{ label: 'Deposits', data: {{ deposit_amounts|safe }}, backgroundColor: 'green' }, { label: 'Withdrawals', data: {{ withdrawal_amounts|safe }}, backgroundColor: 'red' }] }
+                data: {
+                    labels: {{ transaction_dates|safe }},
+                    datasets: [
+                        {
+                            label: 'Deposits',
+                            data: {{ deposit_amounts|safe }},
+                            backgroundColor: 'green'
+                        },
+                        {
+                            label: 'Withdrawals',
+                            data: {{ withdrawal_amounts|safe }},
+                            backgroundColor: 'red'
+                        }
+                    ]
+                }
             });
         });
+        
     </script>
 
-</body>
-</html>
+    
+    
+    </body>
+    </html>
+    

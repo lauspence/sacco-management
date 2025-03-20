@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdraw Loan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: Arial, sans-serif;
+            padding-top: 50px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+        }
+
+        .card {
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            font-size: 1.5rem;
+            font-weight: 600;
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .form-label {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            border-color: #ffc107;
+            color: #212529;
+            font-weight: bold;
+            padding: 12px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .alert-success, .alert-danger {
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1.1rem;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .mt-4, .mt-3 {
+            margin-top: 20px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .btn-dashboard {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+            font-weight: bold;
+            padding: 12px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            width: 100%;
+        }
+
+        .btn-dashboard:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h2 class="text-center text-primary">Withdraw Loan</h2>
+
+        <!-- Loan Withdrawal Section -->
+        <div class="card mb-4">
+            <div class="card-header text-center">
+                <h3 class="section-title">Loan Withdrawal</h3>
+                <p class="text-muted">Remaining Balance: Ksh {{ loan.remaining_balance }}</p>
+            </div>
+
+            <div class="card-body">
+                {% comment %} <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="withdraw_amount" class="form-label">Withdrawal Amount</label>
+                        <input type="number" name="amount" id="withdraw_amount" class="form-control" placeholder="Enter amount"
+                               required min="1" {% if loan.remaining_balance > 0 %} max="{{ loan.remaining_balance }}" {% else %} disabled {% endif %}>
+                    </div>
+
+                    <button type="submit" class="btn btn-warning w-100">Withdraw Loan</button>
+                </form> {% endcomment %}
+
+                {% if error %}
+                    <div class="alert alert-danger mt-3">{{ error }}</div>
+                {% endif %}
+
+                {% if amount %}
+                    <div class="alert alert-success mt-3">Withdrawal Successful! Amount: Ksh {{ amount }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Loan Details Section -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3 class="section-title">Loan Details</h3>
+            </div>
+
+            <div class="card-body">
+                <p><strong>Loan Amount:</strong> Ksh {{ loan.amount }}</p>
+                <p><strong>Remaining Balance:</strong> Ksh {{ loan.remaining_balance }}</p>
+                <p><strong>Total Withdrawn:</strong> Ksh {{ loan.total_withdrawn }}</p>
+            </div>
+        </div>
+
+        <!-- Dashboard Button -->
+        <div class="mt-4">
+            <a href="/dashboard/" class="btn btn-dashboard">Go to Dashboard</a>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

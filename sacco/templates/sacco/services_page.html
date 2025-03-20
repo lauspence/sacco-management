@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Services - Sacco Management</title>
+    
+    <!-- Bootstrap & FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #e3f2fd, #bbdefb);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: url('https://source.unsplash.com/1600x600/?finance,banking') no-repeat center;
+            background-size: cover;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.7);
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        /* Service Cards */
+        .service-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 10px 15px rgba(0,0,0,0.2);
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            color: #007bff;
+        }
+
+        .service-title {
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .service-desc {
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        /* Responsive Spacing */
+        @media (max-width: 768px) {
+            .hero {
+                height: 250px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>Our Services</h1>
+    </div>
+
+    <!-- Services Section -->
+    <div class="container my-5">
+        <div class="row g-4">
+            
+            <!-- Loan Management -->
+            <div class="col-md-4">
+                <div class="service-card">
+                    <i class="fas fa-hand-holding-usd service-icon"></i>
+                    <h3 class="service-title">Loan Management</h3>
+                    <p class="service-desc">We offer easy loan applications with flexible repayment plans tailored for our members.</p>
+                </div>
+            </div>
+
+            <!-- Savings and Deposits -->
+            <div class="col-md-4">
+                <div class="service-card">
+                    <i class="fas fa-piggy-bank service-icon text-success"></i>
+                    <h3 class="service-title">Savings & Deposits</h3>
+                    <p class="service-desc">Secure your future by saving with us. Earn attractive interest rates on your deposits.</p>
+                </div>
+            </div>
+
+            <!-- Member Investments -->
+            <div class="col-md-4">
+                <div class="service-card">
+                    <i class="fas fa-chart-line service-icon text-danger"></i>
+                    <h3 class="service-title">Member Investments</h3>
+                    <p class="service-desc">We provide profitable investment opportunities to Sacco members to help grow their wealth.</p>
+                </div>
+            </div>
+
+            <!-- Funds Transfer -->
+            <div class="col-md-4">
+                <div class="service-card">
+                    <i class="fas fa-exchange-alt service-icon text-warning"></i>
+                    <h3 class="service-title">Funds Transfer</h3>
+                    <p class="service-desc">Transfer funds between your accounts easily and securely, anytime, anywhere.</p>
+                </div>
+            </div>
+
+            <!-- Financial Advisory -->
+            <div class="col-md-4">
+                <div class="service-card">
+                    <i class="fas fa-comments-dollar service-icon text-info"></i>
+                    <h3 class="service-title">Financial Advisory</h3>
+                    <p class="service-desc">Get expert financial advice from our professionals to manage your money effectively.</p>
+                </div>
+            </div>
+
+            <!-- Member Support -->
+            <div class="col-md-4">
+                <div class="service-card">
+                    <i class="fas fa-headset service-icon text-secondary"></i>
+                    <h3 class="service-title">24/7 Member Support</h3>
+                    <p class="service-desc">Our dedicated support team is available round-the-clock to assist with any inquiries.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

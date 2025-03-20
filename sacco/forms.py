@@ -108,3 +108,23 @@ class FundTransferForm(forms.Form):
             raise ValidationError("You cannot transfer funds to the same account.")
 
         return cleaned_data
+    
+
+class LoanWithdrawalForm(forms.Form):
+    amount = forms.DecimalField(
+        max_digits=10, decimal_places=2,
+        min_value=1,
+        widget=forms.NumberInput(attrs={"class": "form-control", "placeholder": "Enter amount"}),
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.loan = kwargs.pop('loan', None)  # Pass the loan instance for validation
+        super().__init__(*args, **kwargs)
+        if self.loan:
+            self.fields['amount'].widget.attrs['max'] = self.loan.remaining_balance  # Set max value dynamically
+
+    def clean_amount(self):
+        amount = self.cleaned_data.get("amount")
+        if self.loan and amount > self.loan.remaining_balance:
+            raise ValidationError("Withdrawal amount exceeds the remaining loan balance.")
+        return amount
